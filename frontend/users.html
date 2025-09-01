@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Gestion de Usuarios</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="topbar">
+    <strong>Gestion de Usuarios</strong>
+    <span id="rolSpan"></span>
+    <div style="flex:1"></div>
+    <span id="userSpan"></span>
+    <button type="button" onclick="logout()">Salir</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h2>Listado</h2>
+      <button id="btnNuevo" class="it" type="button" onclick="nuevoUsuario()" style="display:none">Nuevo usuario</button>
+    </div>
+
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th class="it">Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p id="listMsg" class="msg"></p>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop" style="display:none" onclick="closeModal(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalTitle">Usuario</h3>
+        <button class="close-btn" type="button" aria-label="Cerrar" onclick="hideModal()">×</button>
+      </div>
+      <form id="formUser" class="modal-body">
+        <input type="hidden" id="id_usuario"/>
+
+        <label>Usuario (login)</label>
+        <input id="usuario" required/>
+
+        <label>Nombre (descriptivo)</label>
+        <input id="nombre_usuario" required/>
+
+        <label>Contraseña (opcional al editar)</label>
+        <input id="password" type="password" placeholder="Deja vacío para no cambiarla"/>
+
+        <label>Rol</label>
+        <select id="id_permiso_fk">
+          <option value="1">IT</option>
+          <option value="2">Desarrollador</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="submit">Guardar</button>
+          <button type="button" class="secondary" onclick="hideModal()">Cancelar</button>
+        </div>
+        <p id="formMsg" class="msg"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+
+    const token = getToken();
+    if (!token) location.href = "login.html";
+
+    const rol = getRol();
+    const usuarioActual = localStorage.getItem("usuario") || "";
+    document.getElementById("rolSpan").textContent = `Rol: ${rol}`;
+    document.getElementById("userSpan").textContent = `Usuario: ${usuarioActual}`;
+
+    document.querySelectorAll(".it").forEach(el => el.style.display = (rol === "IT") ? "" : "none");
+    document.getElementById("btnNuevo").style.display = (rol === "IT") ? "" : "none";
+
+    document.getElementById("formUser").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await guardarUsuario();
+    });
+
+    document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") hideModal(); });
+
+    cargar();
+  </script>
+</body>
+</html>

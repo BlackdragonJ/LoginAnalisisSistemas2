@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="card">
+    <h1>Iniciar sesion</h1>
+    <form id="formLogin">
+      <label>Usuario</label>
+      <input id="usuario" required/>
+      <label>Contraseña</label>
+      <input id="password" type="password" required minlength="6"/>
+      <button type="submit">Entrar</button>
+      <p id="msg" class="msg"></p>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    
+    const form = document.getElementById("formLogin");
+    const msg = document.getElementById("msg");
+
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      msg.textContent = "";
+      try{
+
+        const body = {
+            usuario: document.getElementById("usuario").value.trim(),
+            password: document.getElementById("password").value
+        };
+
+        const r = await fetch(`${API_BASE}/auth/login`, {
+          method:"POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuario: document.getElementById("usuario").value.trim(),
+            password: document.getElementById("password").value
+          })
+        });
+
+        const data = await r.json();
+        if(!r.ok) throw new Error(data?.error || "Login falló");
+            setAuth(data.token, data.rol);
+            location.href = "users.html";
+
+      }catch(err){
+        msg.textContent = err.message;
+      }
+    });
+
+  </script>
+</body>
+</html>
